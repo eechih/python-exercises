@@ -1,0 +1,1 @@
+pytest==7.1.3 # The pytest framework makes it easy to write small tests, yet scales to support complex functional testing.

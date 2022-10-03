@@ -1,6 +1,6 @@
 import pytest
 
-from src.regex_patterns import EMAIL_PATTERN, STRONG_PASSWORD_PATTERN
+from src.regex_patterns import *
 
 
 @pytest.mark.parametrize("email,is_valid", [
@@ -23,10 +23,10 @@ from src.regex_patterns import EMAIL_PATTERN, STRONG_PASSWORD_PATTERN
 ])
 def test_email_regex(email, is_valid):
     mo = EMAIL_PATTERN.fullmatch(email)
-    if is_valid:
-        assert mo is not None
+    if mo:
+        assert is_valid is True
     else:
-        assert mo is None
+        assert is_valid is False
 
 
 @pytest.mark.parametrize("password,is_valid", [
@@ -43,10 +43,56 @@ def test_email_regex(email, is_valid):
 ])
 def test_strong_password_regex(password, is_valid):
     mo = STRONG_PASSWORD_PATTERN.fullmatch(password)
-    if is_valid:
-        assert mo is not None
+    if mo:
+        assert is_valid is True
     else:
-        assert mo is None
+        assert is_valid is False
+
+
+@pytest.mark.parametrize("url,is_valid,protocol,domain,path,query", [
+    ("https://www.google.com", True, "https", "www.google.com", "", ""),
+    ("https://www.google.com/search?q=apple", True, "https", "www.google.com", "/search", "q=apple"),
+    ("git@github.com:python", False, None, None, None, None),
+])
+def test_url_pattern(url, is_valid, protocol, domain, path, query):
+    mo = URL_PATTEN.fullmatch(url)
+    if mo:
+        assert is_valid is True
+        assert mo.group() == url
+        assert mo.group(0) == url
+        assert mo.group(1) == protocol
+        assert mo.group(2) == domain
+        assert mo.group(3) == path
+        assert mo.group(4) == query
+        assert mo.groups() == (protocol, domain, path, query)
+        assert mo.groupdict() == {}
+    else:
+        assert is_valid is False
+
+
+@pytest.mark.parametrize("url,is_valid,protocol,domain,path,query", [
+    ("https://www.google.com", True, "https", "www.google.com", "", ""),
+    ("https://www.google.com/search?q=apple", True, "https", "www.google.com", "/search", "q=apple"),
+    ("git@github.com:python", False, None, None, None, None),
+])
+def test_url_pattern_named_groups(url, is_valid, protocol, domain, path, query):
+    mo = URL_PATTEN_NAMED_GROUPS.fullmatch(url)
+    if mo:
+        assert is_valid is True
+        assert mo.group() == url
+        assert mo.group(0) == url
+        assert mo.group(1) == protocol
+        assert mo.group(2) == domain
+        assert mo.group(3) == path
+        assert mo.group(4) == query
+        assert mo.groups() == (protocol, domain, path, query)
+        assert mo.groupdict() == {"protocol": protocol, "domain": domain, "path": path, "query": query}
+        assert mo.group("protocol") == protocol
+        assert mo.group("domain") == domain
+        assert mo.group("path") == path
+        assert mo.group("query") == query
+    else:
+        assert is_valid is False
 
 
 if __name__ == "__main__":

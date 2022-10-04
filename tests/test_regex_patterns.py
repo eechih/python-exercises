@@ -23,10 +23,7 @@ from src.regex_patterns import *
 ])
 def test_email_regex(email, is_valid):
     mo = EMAIL_PATTERN.fullmatch(email)
-    if mo:
-        assert is_valid is True
-    else:
-        assert is_valid is False
+    assert bool(mo) is is_valid
 
 
 @pytest.mark.parametrize("password,is_valid", [
@@ -43,10 +40,7 @@ def test_email_regex(email, is_valid):
 ])
 def test_strong_password_regex(password, is_valid):
     mo = STRONG_PASSWORD_PATTERN.fullmatch(password)
-    if mo:
-        assert is_valid is True
-    else:
-        assert is_valid is False
+    assert bool(mo) is is_valid
 
 
 @pytest.mark.parametrize("url,is_valid,protocol,domain,path,query", [
@@ -108,10 +102,7 @@ def test_url_pattern_named_groups(url, is_valid, protocol, domain, path, query):
 ])
 def test_visa_card_number_pattern(card_number, is_valid):
     mo = VISA_CARD_NUMBER_PATTERN.match(card_number)
-    if mo:
-        assert is_valid is True
-    else:
-        assert is_valid is False
+    assert bool(mo) is is_valid
 
 
 @pytest.mark.parametrize("card_number,is_valid,expected_groups", [
@@ -125,7 +116,6 @@ def test_visa_card_number_pattern(card_number, is_valid):
 ])
 def test_master_card_number_pattern(card_number, is_valid, expected_groups):
     mo = MASTER_CARD_NUMBER_PATTERN.match(card_number)
-
     if mo:
         assert is_valid is True
         assert mo.groups() == expected_groups

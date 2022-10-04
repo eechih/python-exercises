@@ -100,7 +100,23 @@ def test_outside_group_pattern():
     assert ret == [("02-8888-1688", "02", "8888", "1688"), ("02-9888-9898", "02", "9888", "9898")]
 
 
+# 分割字串
+def test_split():
+    p = re.compile(r"\W+")
+    s = "This is a test, short and sweet, of split()."
+    assert p.split(s) == ["This", "is", "a", "test", "short", "and", "sweet", "of", "split", ""]
+    assert p.split(s, 3) == ["This", "is", "a", "test, short and sweet, of split()."]
+    # 有時你不僅對分隔符之間的文字感興趣，而且還需要知道分隔符是什麼。
+    # 在正則中使用捕獲括號，則它們的值也將作為列表的一部分返回。
+    p1 = re.compile(r"\W+")
+    assert p1.split("This... is a test.") == ["This", "is", "a", "test", ""]
+    p2 = re.compile(r"(\W+)")  # 需要知道分隔符是什麼
+    assert p2.split("This... is a test.") == ["This", "... ", "is", " ", "a", " ", "test", ".", ""]
+
+
+# 搜尋和替換
 def test_sub():
+    # 遮蔽中獎名單的名字
     name_regex = re.compile(f"prize - \w+")
     result = name_regex.sub("HIDE", "first prize - Phoebe, second prize - Vivi, third prize - Ming")
     assert result == "first HIDE, second HIDE, third HIDE"
@@ -112,6 +128,18 @@ def test_sub():
     name_regex = re.compile(f"(prize - \w)\w+")
     result = name_regex.sub(r"\1***", "first prize - Phoebe, second prize - Vivi, third prize - Ming")
     assert result == "first prize - P***, second prize - V***, third prize - M***"
+
+    # 用 colour 這個詞取代顏色名稱
+    p = re.compile(f"(blue|white|red)")
+    p.sub("colour", "blue socks and red shoes") == "colour socks and colour shoes"
+    p.sub("colour", "blue socks and red shoes", count=1) == "colour socks and red shoes"
+
+
+def test_subn():
+    # 與 sub() 方法相同，返回一個包含新字串值和已執行的替換次數的二元組。
+    p = re.compile(f"(blue|white|red)")
+    p.subn("colour", "blue socks and red shoes") == ("colour socks and colour shoes", 2)
+    p.subn("colour", "no colours at all") == ("no colours at all", 0)
 
 
 def test_non_greedy():

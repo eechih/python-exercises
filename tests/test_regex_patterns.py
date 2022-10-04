@@ -95,5 +95,43 @@ def test_url_pattern_named_groups(url, is_valid, protocol, domain, path, query):
         assert is_valid is False
 
 
+@pytest.mark.parametrize("card_number,is_valid", [
+    ("4012-8888-8888-1881", True),
+    ("4012 8888 8888 1881", True),
+    ("4012888888881881", True),
+    ("4012-8888-8888-1", True),
+    ("4012 8888 8888 1", True),
+    ("4012888888881", True),
+    ("4012_8888_8888_1881", False),  # 只接受空白或破折號形成分隔的卡號
+    ("401288888888188", False),  # 長度非 13 或 16 碼
+    ("1012888888881881", False),  # 非 4 開頭
+])
+def test_visa_card_number_pattern(card_number, is_valid):
+    mo = VISA_CARD_NUMBER_PATTERN.match(card_number)
+    if mo:
+        assert is_valid is True
+    else:
+        assert is_valid is False
+
+
+@pytest.mark.parametrize("card_number,is_valid,expected_groups", [
+    ("5111-0051-1105-1128", True, ("5111", "0051", "1105", "1128")),
+    ("5111 0051 1105 1128", True, ("5111", "0051", "1105", "1128")),
+    ("5111005111051128", True, ("5111", "0051", "1105", "1128")),
+    ("5111_0051_1105_1128", False, None),  # 只接受空白或破折號形成分隔的卡號
+    ("511100511105112", False, None),  # 長度非 16 碼
+    ("501100511105112", False, None),  # 非 51 ~ 55 開頭
+    ("561100511105112", False, None),  # 非 51 ~ 55 開頭
+])
+def test_master_card_number_pattern(card_number, is_valid, expected_groups):
+    mo = MASTER_CARD_NUMBER_PATTERN.match(card_number)
+
+    if mo:
+        assert is_valid is True
+        assert mo.groups() == expected_groups
+    else:
+        assert is_valid is False
+
+
 if __name__ == "__main__":
     pytest.main()

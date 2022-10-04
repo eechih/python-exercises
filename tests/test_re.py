@@ -114,5 +114,42 @@ def test_sub():
     assert result == "first prize - P***, second prize - V***, third prize - M***"
 
 
+def test_non_greedy():
+    # 貪婪：嘗試匹配盡可能多的字符
+    # 非貪婪：嘗試匹配盡可能少的字符
+
+    # ?? 匹配0次或1次 (非貪婪)
+    assert re.search("go??", "goooooood").group() == "g"
+
+    # +? 匹配1次或更多次以上（非貪婪）
+    assert re.search("go+?", "goooooood").group() == "go"
+
+    # *? 匹配0次或1次或更多次以上（非貪婪）
+    assert re.search("go*?", "goooooood").group() == "g"
+
+    # {n,m}? 匹配n到m次（非貪婪）
+    assert re.search("go{2,8}?", "goooooood").group() == "goo"
+
+    # {n,}? 匹配n次或n次以上（非貪婪）
+    assert re.search("go{4}?", "goooooood").group() == "goooo"
+
+
+def test_greedy_versus_non_greedy():
+    # Greedy：嘗試匹配盡可能多的字符
+    # Non-Greedy：嘗試匹配盡可能少的字符
+
+    s = "abcde abcde"
+    assert re.search(".*c", s).group() == "abcde abc"
+    assert re.search(".*?c", s).group() == "abc"
+
+    s = "<html><head><title>Title</title>"
+    assert re.match("<.*>", s).group() == "<html><head><title>Title</title>"
+    assert re.match("<.*?>", s).group() == "<html>"
+
+    s = "This is a number 234-235-22-423"
+    assert re.match(r".+(\d+-\d+-\d+-\d+)", s).group(1) == "4-235-22-423"
+    assert re.match(r".+?(\d+-\d+-\d+-\d+)", s).group(1) == "234-235-22-423"
+
+
 if __name__ == "__main__":
     pytest.main()
